@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: linear-gradient(135deg, #1c1c1c, #121212);
+            color: #f5f5f5;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        h2, h3 {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        /* Navigation Bar */
+        nav {
+            background: rgba(30, 30, 30, 0.9);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropbtn {
+            padding: 10px 16px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .dropbtn:hover {
+            background: #1565c0;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(30, 30, 30, 0.95);
+            min-width: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0 0 8px 8px;
+            z-index: 1;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .dropdown-content ul {
+            padding: 10px;
+        }
+        
+        .dropdown-content li {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .dropdown-content li:hover {
+            background: rgba(100, 181, 246, 0.2);
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        button {
+            padding: 10px 16px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: #1565c0;
+            transform: scale(1.05);
+        }
+        input {
+            padding: 10px;
+            width: 80%;
+            background: #1e1e1e;
+            color: #fff;
+            border: 1px solid #333;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+        
+        #chat-box, #group-chat {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: color 0.2s ease;
+        }
+        li:hover {
+            color: #64b5f6;
+        }
+        
+        .message {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .message p {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: inline-block;
+            max-width: 80%;
+        }
+        .delete-btn {
+            background: #e53935;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .delete-btn:hover {
+            background: #c62828;
+        }
+        #typing {
+            color: gray;
+            font-style: italic;
+            margin: 5px 0;
+        }
+        
+        .active-chat {
+            color: #64b5f6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <h2>Chat App</h2>
+            
+            <div class="dropdown">
+                <button class="dropbtn">🟢 Online Users</button>
+                <div class="dropdown-content">
+                    <ul id="online-list"></ul>
+                </div>
+            </div>
+            
+            <div class="dropdown">
+                <button class="dropbtn">🔴 Offline Users</button>
+                <div class="dropdown-content">
+                    <ul id="offline-list"></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <span style="margin-right: 15px;">Welcome, {{ username }}</span>
+            <a href="/logout"><button>Logout</button></a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <h3>👥 Group Chat</h3>
+        <div id="group-chat"></div>
+        <input type="text" id="group-msg" placeholder="Group message">
+        <button onclick="sendGroupMessage()">Send</button>
+
+        <h3 id="private-chat-header">🔐 Private Chat</h3>
+        <div id="chat-box"></div>
+        <div id="typing"></div>
+        <input type="text" id="msg" placeholder="Type message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let receiver = null;
+
+        socket.on('connect', () => console.log('Socket.IO connected'));
+        socket.on('connect_error', (err) => console.error('Socket.IO error:', err));
+
+        socket.emit('join');
+
+        function refreshUserList() {
+            fetch('/get_users')
+                .then(res => res.json())
+                .then(data => {
+                    const online = document.getElementById('online-list');
+                    const offline = document.getElementById('offline-list');
+                    online.innerHTML = '';
+                    offline.innerHTML = '';
+                    
+                    data.online.forEach(user => {
+                        if (user !== "{{ username }}") {
+                            const li = document.createElement('li');
+                            li.innerText = user;
+                            li.onclick = () => {
+                                loadChatHistory(user);
+                                // Highlight the active chat
+                                document.querySelectorAll('#online-list li, #offline-list li').forEach(item => {
+                                    item.classList.remove('active-chat');
+                                });
+                                li.classList.add('active-chat');
+                            };
+                            online.appendChild(li);
+                        }
+                    });
+                    
+                    data.offline.forEach(user => {
+                        if (user !== "{{ username }}") {
+                            const li = document.createElement('li');
+                            li.innerText = user;
+                            li.onclick = () => {
+                                loadChatHistory(user);
+                                // Highlight the active chat
+                                document.querySelectorAll('#online-list li, #offline-list li').forEach(item => {
+                                    item.classList.remove('active-chat');
+                                });
+                                li.classList.add('active-chat');
+                            };
+                            offline.appendChild(li);
+                        }
+                    });
+                })
+                .catch(err => console.error('Error fetching users:', err));
+        }
+        setInterval(refreshUserList, 3000);
+
+        socket.on('update_users', () => refreshUserList());
+
+        function sendMessage() {
+            const msg = document.getElementById('msg').value;
+            if (receiver && msg.trim() !== '') {
+                socket.emit('private_message', { to: receiver, msg: msg });
+                document.getElementById('msg').value = '';
+            }
+        }
+
+        document.getElementById("msg").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        socket.on('private_message', function (data) {
+            const chat = document.getElementById('chat-box');
+            const status = data.status === 'seen' ? '✅✅' : data.status === 'delivered' ? '✅' : '⏳';
+            chat.innerHTML += `<div class="message" id="msg-${data.id}"><p><strong>${data.from}:</strong> ${data.msg} <small style="color:gray">${data.timestamp}</small> <span class="status">${status}</span></p><button class="delete-btn" onclick="deleteMessage(${data.id})">🗑️</button></div>`;
+            if (receiver === data.from) {
+                fetch(`/mark_seen/${data.from}`, { method: 'POST' }).catch(err => console.error('Error marking seen:', err));
+            }
+        });
+
+        socket.on('message_status_updated', function (data) {
+            const message = document.querySelector(`#msg-${data.id}`);
+            if (message) {
+                const statusSpan = message.querySelector('.status');
+                if (statusSpan) {
+                    statusSpan.innerText = data.status === 'seen' ? '✅✅' : data.status === 'delivered' ? '✅' : '⏳';
+                }
+            }
+        });
+
+        socket.on('message_deleted', function (data) {
+            const message = document.getElementById(`msg-${data.id}`);
+            if (message) message.style.display = 'none';
+        });
+
+        function loadChatHistory(user) {
+            receiver = user;
+            const chat = document.getElementById('chat-box');
+            document.getElementById('private-chat-header').innerText = `🔐 Private Chat with ${receiver}`;
+            chat.innerHTML = `<p><em>Chatting with ${receiver}</em></p>`;
+            fetch(`/history/${receiver}`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(row => {
+                        const status = row.status === 'seen' ? '✅✅' : row.status === 'delivered' ? '✅' : '⏳';
+                        chat.innerHTML += `<div class="message" id="msg-${row.id}"><p><strong>${row.sender}:</strong> ${row.message} <small style="color:gray">${row.timestamp}</small> <span class="status">${status}</span></p><button class="delete-btn" onclick="deleteMessage(${row.id})">🗑️</button></div>`;
+                    });
+                    fetch(`/mark_seen/${receiver}`, { method: 'POST' }).catch(err => console.error('Error marking seen:', err));
+                })
+                .catch(err => console.error('Error loading chat history:', err));
+        }
+
+        function deleteMessage(id) {
+            fetch('/delete_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            }).then(response => {
+                if (response.ok) {
+                    const message = document.getElementById(`msg-${id}`);
+                    if (message) message.style.display = 'none';
+                }
+            }).catch(err => console.error('Error deleting message:', err));
+        }
+
+        let typingTimeout;
+        document.getElementById("msg").addEventListener("input", function () {
+            socket.emit("typing", { to: receiver });
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit("stop_typing", { to: receiver });
+            }, 1000);
+        });
+
+        socket.on("show_typing", (data) => {
+            document.getElementById("typing").innerText = `${data.from} is typing...`;
+        });
+
+        socket.on("hide_typing", () => {
+            document.getElementById("typing").innerText = "";
+        });
+
+        function sendGroupMessage() {
+            const msg = document.getElementById("group-msg").value;
+            if (msg.trim() !== "") {
+                socket.emit("group_message", { msg: msg });
+                document.getElementById("group-msg").value = "";
+            }
+        }
+
+        socket.on("group_message", (data) => {
+            const groupChat = document.getElementById('group-chat');
+            groupChat.innerHTML += `<p><strong>${data.from}:</strong> ${data.msg}</p>`;
+        });
+    </script>
+</body>
+</html>
