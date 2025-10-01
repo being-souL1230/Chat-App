@@ -2,7 +2,7 @@
 
 A feature-rich, real-time chat application built with Flask and Socket.IO that enables users to communicate with each other through private and group messages.
 
-## 🌟 Features
+##  Features
 
 - **User Authentication**
   - Secure user registration and login system
@@ -26,7 +26,7 @@ A feature-rich, real-time chat application built with Flask and Socket.IO that e
   - Session management
   - Input validation
 
-## 🚀 Prerequisites
+##  Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -34,7 +34,7 @@ Before you begin, ensure you have the following installed:
 - MySQL Server
 - pip (Python package manager)
 
-## 🛠 Installation
+##  Installation
 
 1. **Clone the repository**
    ```bash
@@ -68,7 +68,7 @@ Before you begin, ensure you have the following installed:
 5. **Database schema**
    The application will automatically create the required tables on first run.
 
-## 🏃‍♂️ Running the Application
+##  Running the Application
 
 1. **Start the server**
    ```bash
@@ -78,7 +78,7 @@ Before you begin, ensure you have the following installed:
 2. **Access the application**
    Open your web browser and navigate to: `http://localhost:5000`
 
-## 🔧 Configuration
+##  Configuration
 
 You can customize the following settings in `app.py`:
 
@@ -86,7 +86,7 @@ You can customize the following settings in `app.py`:
 - `PERMANENT_SESSION_LIFETIME`: Session timeout duration (in seconds)
 - Database connection settings
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 chat_app/
@@ -99,7 +99,7 @@ chat_app/
     └── register.html  # Registration page
 ```
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -109,16 +109,16 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Built with Flask and Socket.IO
 - Uses MySQL for data storage
 - Frontend powered by HTML, CSS, and JavaScript
 
-## 📧 Contact
+##  Contact
 
-For any queries or support, please contact [your-email@example.com]
+For any queries or support, please contact [rishabdixit402@gmail.com]
