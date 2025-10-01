@@ -92,7 +92,6 @@ You can customize the following settings in `app.py`:
 chat_app/
 ├── app.py              # Main application file
 ├── requirements.txt    # Python dependencies
-├── .gitignore         # Git ignore file
 └── templates/         # HTML templates
     ├── chat.html      # Main chat interface
     ├── login.html     # Login page
