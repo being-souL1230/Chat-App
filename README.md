@@ -38,8 +38,8 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository**
    ```bash
-   git clone [your-repository-url]
-   cd chat_app
+   git clone https://github.com/being-souL1230/Chat-App.git
+   cd Chat-App
    ```
 
 2. **Create a virtual environment**
